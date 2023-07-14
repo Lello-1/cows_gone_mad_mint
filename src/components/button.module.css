@@ -1,0 +1,22 @@
+.button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 45px;
+  height: 45px;
+  background-color: white;
+  border-radius: 10px;
+  align-self: center;
+  cursor: pointer;
+  transition: all 235ms ease-in-out;
+  touch-action: manipulation;
+}
+
+.button:hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+.button_img {
+  width: 25px;
+  height: 3rem;
+}

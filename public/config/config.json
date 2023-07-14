@@ -1,0 +1,31 @@
+{
+  "CONTRACT_ADDRESS": "0xF198B066A9f896E2d266E2c5B353014480AFe5Ac",
+  "SCAN_LINK": "https://mumbai.polygonscan.com/address/0xF198B066A9f896E2d266E2c5B353014480AFe5Ac",
+  "TWITTER": "",
+  "DISCORD": "",
+  "INSTAGRAM": "",
+  "ROADMAP": "",
+  "OPENSEA": "https://testnets.opensea.io/collection/cows-gone-mad-1",
+  "NETWORK": {
+    "NAME": "Polygon Testnet",
+    "MAINORTEST": "testnet",
+    "SYMBOL": "MATIC",
+    "ID": 80001,
+    "CHAINID": "0x13881"
+  },
+  "WHITE_LIST_MINT": false,
+  "NFT_NAME": "Cows Gone Mad",
+  "SYMBOL": "CGM",
+  "MAX_SUPPLY": 9999,
+  "WEI_COST": 10000000000000000,
+  "DISPLAY_COST": "0.01",
+  "GAS_LIMIT": 300000,
+  "MARKETPLACE": "Opensea",
+  "MARKETPLACE_LINK": "https://testnets.opensea.io/collection/cows-gone-mad-1",
+  "SHOW_BACKGROUND": false,
+  "MAX_PER_WALLET": "100 Max Per Transaction",
+  "SOLD_OUT": "",
+  "TITLE_ONE": "Adopt a Mad Cow",
+  "TITLE_TWO": "",
+  "WALLET_ERROR": "Please check that the selected wallet is installed!"
+}

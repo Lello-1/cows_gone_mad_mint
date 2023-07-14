@@ -9,10 +9,26 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@binance-chain/javascript-sdk": "^4.2.1",
+    "@coinbase/wallet-sdk": "^3.7.1",
+    "@crossmint/client-sdk-react-ui": "^1.0.0-alpha.0",
+    "@web3-onboard/core": "^2.20.4",
+    "@web3-onboard/injected-wallets": "^2.10.2",
     "eslint": "8.44.0",
     "eslint-config-next": "13.4.8",
+    "eth-rpc-errors": "^4.0.3",
+    "ethers": "^6.6.2",
     "next": "13.4.8",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "styled-components": "^6.0.2"
+  },
+  "browserslist": [
+    ">0.3%",
+    "not dead",
+    "not op_mini all"
+  ],
+  "devDependencies": {
+    "dotenv": "^16.3.1"
   }
 }
