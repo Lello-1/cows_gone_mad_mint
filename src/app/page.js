@@ -73,27 +73,9 @@ export default function Home() {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const[ABI, setABI] = useState({});
-  const [CONFIG, SET_CONFIG] = useState({
-    CONTRACT_ADDRESS: "",
-    SCAN_LINK: "",
-    NETWORK: {
-      NAME: "",
-      SYMBOL: "",
-      ID: 0,
-    },
-    NFT_NAME: "",
-    SYMBOL: "",
-    MAX_SUPPLY: 1,
-    WEI_COST: 0,
-    DISPLAY_COST: 0,
-    GAS_LIMIT: 0,
-    MARKETPLACE: "",
-    MARKETPLACE_LINK: "",
-    SHOW_BACKGROUND: false,
-  });
+  const [CONFIG, SET_CONFIG] = useState({});
 
   const RPC_connection = async (abi, config) => {
-    // const default_provider = ethers.getDefaultProvider();
     const provider = new ethers.JsonRpcProvider(MAINNET_RPC_URL);
 
     const contract = new Contract(
@@ -106,6 +88,7 @@ export default function Home() {
     const cost = await contract.getPrice();
     const totalMinted = await contract.totalSupply();
 
+    blockchain.default_contract = contract;
     setData({
       cost,
       totalMinted
@@ -394,7 +377,7 @@ export default function Home() {
                         projectId="f45596a2-278e-4e6c-92c0-3f78be7d3e73"
                         mintConfig={{
                           "type":"erc-721",
-                          "totalPrice":ethers.formatEther(data.cost),
+                          "totalPrice":ethers.formatEther(data.cost * mintAmount),
                           "_mintAmount":mintAmount,
                           "quantity":mintAmount
                         }}
