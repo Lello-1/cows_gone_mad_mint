@@ -73,7 +73,9 @@ export default function Home() {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const[ABI, setABI] = useState({});
-  const [CONFIG, SET_CONFIG] = useState({});
+  const [CONFIG, SET_CONFIG] = useState({
+    NETWORK: { NAME: "" }
+  });
 
   const RPC_connection = async (abi, config) => {
     const provider = new ethers.JsonRpcProvider(MAINNET_RPC_URL);
@@ -275,7 +277,6 @@ export default function Home() {
       },
     });
     const abi = await abiResponse.json();
-    console.log('abi - ', abi);
 
     setABI(abi)
     SET_CONFIG(config);
@@ -289,13 +290,13 @@ export default function Home() {
 
   return (
     <main>
-      <Header openseaURL={{
-        openseaURL: CONFIG.OPENSEA
-      }}/>
       <s.Screen style={{
         backgroundImage: `url('https://belgoteximagelibrarythumbnails.s3.eu-west-2.amazonaws.com/test/shattered.png')`,
         backgroundRepeat: 'repeat'
       }}>
+        <Header openseaURL={{
+          openseaURL: CONFIG.OPENSEA
+        }}/>
         <s.Container
           flex={1}
           ai={"center"}
@@ -372,12 +373,13 @@ export default function Home() {
                         OR
                       </s.TextSubTitle>
                       <s.SpacerLarge/>
+                      {console.log('WEI - ', Number(data.cost) * mintAmount)}
                       <CrossmintPayButton
                         collectionId="0ccab6f8-d0be-409e-a280-fab3db7b22dd"
                         projectId="f45596a2-278e-4e6c-92c0-3f78be7d3e73"
                         mintConfig={{
                           "type":"erc-721",
-                          "totalPrice":ethers.formatEther(data.cost * mintAmount),
+                          "totalPrice":ethers.formatEther(BigInt(Number(data.cost) * mintAmount)),
                           "_mintAmount":mintAmount,
                           "quantity":mintAmount
                         }}
