@@ -7,7 +7,7 @@ import insta from "../../public/social/insta.svg";
 import discord from "../../public/social/discord.svg";
 import opensea from "../../public/social/opensea.svg";
 
-const Header = () => {
+const Header = ({ openseaURL }) => {
   return (
     <div className="header-wrapper">
       <div className="inner-nav">
@@ -44,7 +44,7 @@ const Header = () => {
             </div>
             <div className="header--nav-items">
               <ButtonExt
-                location=""
+                location={openseaURL}
                 image={opensea}
                 alt={"Opensea"}
               />

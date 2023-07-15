@@ -3,8 +3,7 @@
 import "dotenv/config";
 import React, { useEffect, useState } from "react";
 import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
-import { BrowserProvider, Contract } from "ethers";
-// import Web3Modal from "@wandevs/web3modal";
+import { ethers, BrowserProvider, Contract } from "ethers";
 import Onboard from '@web3-onboard/core'
 import injectedModule from '@web3-onboard/injected-wallets'
 import { CoinbaseWalletSDK } from "@coinbase/wallet-sdk";
@@ -60,15 +59,20 @@ const onboard = Onboard({
 export default function Home() {
   const [blockchain, setBlockchain] = useState({
     account: "",
-    contract: null
+    contract: null,
+    default_contract: null
   });
-  const [data, setData] = useState({ totalMinted: null });
+  const [data, setData] = useState({
+    totalMinted: 0,
+    cost: 0
+  });
   const [walletError, setWalletError] = useState('');
   const [claimingNft, setClaimingNft] = useState(false);
   const [feedback, setFeedback] = useState(`Click MINT to mint your NFT.`);
   const [mintAmount, setMintAmount] = useState(1);
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
+  const[ABI, setABI] = useState({});
   const [CONFIG, SET_CONFIG] = useState({
     CONTRACT_ADDRESS: "",
     SCAN_LINK: "",
@@ -87,24 +91,36 @@ export default function Home() {
     MARKETPLACE_LINK: "",
     SHOW_BACKGROUND: false,
   });
+
+  const RPC_connection = async (abi, config) => {
+    // const default_provider = ethers.getDefaultProvider();
+    const provider = new ethers.JsonRpcProvider(MAINNET_RPC_URL);
+
+    const contract = new Contract(
+      config.CONTRACT_ADDRESS,
+      abi,
+      provider
+    );
+
+    // Get mint cost
+    const cost = await contract.getPrice();
+    const totalMinted = await contract.totalSupply();
+
+    setData({
+      cost,
+      totalMinted
+    });
+    
+  }
   
   // CONNECT WALLET
-  async function connectWallet() {
+  const connectWallet = async () => {
     try {
       const wallets = await onboard.connectWallet();
 
       if (wallets[0]) {
         const provider = new BrowserProvider(wallets[0].provider, 'any');
         const signer = await provider.getSigner();
-  
-        // Get Contract ABI
-        const abiResponse = await fetch("/config/abi.json", {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-        });
-        const abi = await abiResponse.json();
   
         // Request account
         const accounts = await wallets[0].provider.request({
@@ -120,7 +136,7 @@ export default function Home() {
   
           const contract = new Contract(
             CONFIG.CONTRACT_ADDRESS,
-            abi,
+            ABI,
             signer
           );
           blockchain.contract = contract;
@@ -148,7 +164,7 @@ export default function Home() {
                 blockchain.account = wallets[0].accounts[0].address;
                 blockchain.contract = new Contract(
                   CONFIG.CONTRACT_ADDRESS,
-                  abi,
+                  ABI,
                   newSigner
                 )
                 setProvider(provider);
@@ -259,7 +275,7 @@ export default function Home() {
     }
   }
 
-  const getConfig = async () => {
+  const getConfig = async (cb) => {
     const configResponse = await fetch("/config/config.json", {
       headers: {
         "Content-Type": "application/json",
@@ -267,16 +283,32 @@ export default function Home() {
       },
     });
     const config = await configResponse.json();
+
+    // Get Contract ABI
+    const abiResponse = await fetch("/config/abi.json", {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    });
+    const abi = await abiResponse.json();
+    console.log('abi - ', abi);
+
+    setABI(abi)
     SET_CONFIG(config);
+    RPC_connection(abi, config);
   };
 
   useEffect(() => {
     getConfig();
   }, []);
 
+
   return (
     <main>
-      <Header />
+      <Header openseaURL={{
+        openseaURL: CONFIG.OPENSEA
+      }}/>
       <s.Screen style={{
         backgroundImage: `url('https://belgoteximagelibrarythumbnails.s3.eu-west-2.amazonaws.com/test/shattered.png')`,
         backgroundRepeat: 'repeat'
@@ -286,8 +318,6 @@ export default function Home() {
           ai={"center"}
         >
           <s.ResponsiveWrapper flex={1} style={{ padding: "24px 0" }}>
-            <s.SpacerLarge />
-            <s.SpacerLarge />
             <s.SpacerLarge />
             <s.Container flex={2} jc={"center"} ai={"center"} >
               <s.TextTitle style={screebie.style} >
@@ -300,7 +330,7 @@ export default function Home() {
                 {CONFIG.MAX_PER_WALLET}
               </s.TextSubTitle>
               <s.TextTitle style={screebie.style} >
-                {data.totalMinted !== null
+                {data.totalMinted != 0
                   ? `${data.totalMinted} / ${CONFIG.MAX_SUPPLY}`
                   : `? / ${CONFIG.MAX_SUPPLY}`}
               </s.TextTitle>
@@ -360,15 +390,17 @@ export default function Home() {
                       </s.TextSubTitle>
                       <s.SpacerLarge/>
                       <CrossmintPayButton
-                      clientId="34b97675-28af-4107-9c1b-ee998705decc"
-                      mintConfig={{
-                        "type":"erc-721",
-                        "totalPrice":"0.01",
-                        "_mintAmount": mintAmount
-                      }}
-                      environment="staging"
-                      mintTo="<YOUR_USER_WALLET_ADDRESS>"
-                    />
+                        collectionId="0ccab6f8-d0be-409e-a280-fab3db7b22dd"
+                        projectId="f45596a2-278e-4e6c-92c0-3f78be7d3e73"
+                        mintConfig={{
+                          "type":"erc-721",
+                          "totalPrice":ethers.formatEther(data.cost),
+                          "_mintAmount":mintAmount,
+                          "quantity":mintAmount
+                        }}
+                        environment="staging"
+                          
+                      />
                       <s.TextTitle
                         style={{
                           textAlign: "center",

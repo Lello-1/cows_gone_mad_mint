@@ -1,6 +1,6 @@
 {
-  "CONTRACT_ADDRESS": "0xF198B066A9f896E2d266E2c5B353014480AFe5Ac",
-  "SCAN_LINK": "https://mumbai.polygonscan.com/address/0xF198B066A9f896E2d266E2c5B353014480AFe5Ac",
+  "CONTRACT_ADDRESS": "0x71A724f1B88fB7ea34687159c221F5e0b2e611a0",
+  "SCAN_LINK": "https://mumbai.polygonscan.com/address/0x71A724f1B88fB7ea34687159c221F5e0b2e611a0",
   "TWITTER": "",
   "DISCORD": "",
   "INSTAGRAM": "",
@@ -17,8 +17,7 @@
   "NFT_NAME": "Cows Gone Mad",
   "SYMBOL": "CGM",
   "MAX_SUPPLY": 9999,
-  "WEI_COST": 10000000000000000,
-  "DISPLAY_COST": "0.01",
+  "WEI_COST": 0,
   "GAS_LIMIT": 300000,
   "MARKETPLACE": "Opensea",
   "MARKETPLACE_LINK": "https://testnets.opensea.io/collection/cows-gone-mad-1",
