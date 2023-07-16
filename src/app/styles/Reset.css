@@ -164,3 +164,7 @@ div {
   user-select: none;
   -o-user-select: none;
 }
+
+:root {
+  --onboard-white: aquamarine;
+}

@@ -1,5 +1,25 @@
 import styled from "styled-components";
 
+const breakpoints = {
+  xs: "240px",
+  sm: "480px",
+  md: "768px",
+  lg: "992px",
+  xl: "1280px",
+  xxl: "1440",
+  xxxl: "1920px",
+}
+
+export const devices = {
+  xs: `(min-width: ${breakpoints.xs})`,
+  sm: `(min-width: ${breakpoints.sm})`,
+  md: `(min-width: ${breakpoints.md})`,
+  lg: `(min-width: ${breakpoints.lg})`,
+  xl: `(min-width: ${breakpoints.xl})`,
+  xxl: `(min-width: ${breakpoints.xxl})`,
+  xxxl: `(min-width: ${breakpoints.xxxl})`,
+}
+
 // Used for wrapping a page component
 export const Screen = styled.div`
   background-color: #000;
@@ -49,15 +69,35 @@ export const Container = styled.div`
   background-repeat: no-repeat;
 `;
 
+export const bottomContainer = styled.div`
+  display: flex;
+  flex: ${({ flex }) => (flex ? flex : 0)};
+  flex-direction: ${({ fd }) => (fd ? fd : "column")};
+  justify-content: ${({ jc }) => (jc ? jc : "flex-start")};
+  align-items: ${({ ai }) => (ai ? ai : "flex-start")};
+  background-color: ${({ test }) => (test ? "pink" : "none")};
+  width: 100%;
+  background-image: ${({ image }) => (image ? `url(${image})` : "none")};
+  background-size: cover;
+  background-position: top;
+  background-repeat: no-repeat;
+  @media only screen and ${devices.md} {
+    width: 70%;
+  }
+`;
+
 export const TextTitle = styled.h2`
   font-family: "screebie";
   color: #fff;
   transform: scale(1, 0.65);
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: black;
-  font-size: 7em;
+  font-size: 4.5em;
   font-weight: 700;
   line-height: 1.4;
+  @media only screen and ${devices.sm} {
+    font-size: 7em;
+  }
 `;
 
 export const TextSubTitle = styled.h3`
@@ -70,8 +110,11 @@ export const TextSubTitle = styled.h3`
 export const TextDescription = styled.p`
   font-family: ;
   color: #fff;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   line-height: 1.6;
+  @media only screen and ${devices.sm} {
+    font-size: 1.6rem;
+  }
 `;
 
 export const StyledClickable = styled.div`

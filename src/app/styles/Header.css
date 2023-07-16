@@ -50,12 +50,21 @@
   }
 }
 
-@media only screen and (max-width: 400px) {
+@media only screen and (max-width: 480px) {
   .header-wrapper {
     padding-right: 0rem;
   }
 
   .header-items {
     max-width: 100vw;
+  }
+
+  .logo-image {
+    width: 80px;
+    height: auto;
+  }
+
+  .header-wrapper {
+    height: 100px;
   }
 }

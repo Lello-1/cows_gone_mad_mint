@@ -4,14 +4,14 @@ import "dotenv/config";
 import React, { useEffect, useState } from "react";
 import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 import { ethers, BrowserProvider, Contract } from "ethers";
-import Onboard from '@web3-onboard/core'
+import Onboard, { ThemingMap } from '@web3-onboard/core'
 import injectedModule from '@web3-onboard/injected-wallets'
 import { CoinbaseWalletSDK } from "@coinbase/wallet-sdk";
 import { serializeError } from 'eth-rpc-errors'
-import * as s from "./styles/globalStyles";
 import Header from "../components/Header";
 import MintInput from "../components/Mint_Input";
 import localFont from "next/font/local";
+import * as s from "./styles/globalStyles";
 
 const screebie = localFont({
   src: './fonts/screebie.ttf',
@@ -38,8 +38,6 @@ const MAINNET_RPC_URL = 'https://polygon-mumbai.g.alchemy.com/v2/cZi4QJUlHpBBa02
 const injected = injectedModule();
 
 const onboard = Onboard({
-  theme: 'dark',
-  disableFontDownload: true,
   wallets: [injected],
   chains: [
     {
@@ -373,7 +371,6 @@ export default function Home() {
                         OR
                       </s.TextSubTitle>
                       <s.SpacerLarge/>
-                      {console.log('WEI - ', Number(data.cost) * mintAmount)}
                       <CrossmintPayButton
                         collectionId="0ccab6f8-d0be-409e-a280-fab3db7b22dd"
                         projectId="f45596a2-278e-4e6c-92c0-3f78be7d3e73"
@@ -431,14 +428,14 @@ export default function Home() {
               <s.SpacerMedium />
             </s.Container>
           </s.ResponsiveWrapper>
-          <s.Container jc={"center"} ai={"center"} style={{ width: "70%" }}>
+          <s.bottomContainer jc={"center"} ai={"center"}>
             <s.TextDescription style={{ textAlign: "center" }} >
               Please make sure you are connected to the right network (
               {CONFIG.NETWORK.NAME}). <br />
               Please note: Once you make the purchase, you cannot undo this
               action.
             </s.TextDescription>
-          </s.Container>
+          </s.bottomContainer>
         </s.Container>
         <s.SpacerLarge />
       </s.Screen>

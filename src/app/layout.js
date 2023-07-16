@@ -1,4 +1,5 @@
 import "./styles/Reset.css";
+import "./styles/media_query.css";
 
 export const metadata = {
   title: 'Mint your own Cows Gone Mad NFT',
