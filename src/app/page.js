@@ -11,28 +11,13 @@ import { serializeError } from 'eth-rpc-errors'
 import Header from "../components/Header";
 import MintInput from "../components/Mint_Input";
 import localFont from "next/font/local";
-import * as s from "./styles/globalStyles";
+import styles from "./styles/Global.module.css";
 
 const screebie = localFont({
   src: './fonts/screebie.ttf',
   weight: '700',
   display: 'swap'
 });
-
-// const providerOptions = {
-//   binancechainwallet: {
-//     package: true
-//   },
-//   coinbasewallet: {
-//     package: CoinbaseWalletSDK,
-//     options: {
-//       appName: 'Polygon Prototype Contract',
-//       alchemyId: {
-//         3: `https://polygon-mumbai.g.alchemy.com/v2/cZi4QJUlHpBBa02zsxzly6SSU0e7uc8y`
-//       }
-//     }
-//   }
-// }
 
 const MAINNET_RPC_URL = 'https://polygon-mumbai.g.alchemy.com/v2/cZi4QJUlHpBBa02zsxzly6SSU0e7uc8y';
 const injected = injectedModule();
@@ -288,89 +273,100 @@ export default function Home() {
 
   return (
     <main>
-      <s.Screen style={{
-        backgroundImage: `url('https://belgoteximagelibrarythumbnails.s3.eu-west-2.amazonaws.com/test/shattered.png')`,
-        backgroundRepeat: 'repeat'
-      }}>
+      <div className={styles.screen} >
         <Header openseaURL={{
           openseaURL: CONFIG.OPENSEA
         }}/>
-        <s.Container
-          flex={1}
-          ai={"center"}
-        >
-          <s.ResponsiveWrapper flex={1} style={{ padding: "24px 0" }}>
-            <s.SpacerLarge />
-            <s.Container flex={2} jc={"center"} ai={"center"} >
-              <s.TextTitle style={screebie.style} >
+        <div className={styles.container} >
+          <div className={styles.responsive_wrapper}>
+            <div className={styles.spacerLarge} />
+            <div className={styles.container} >
+              <h1 className={styles.text_title} style={screebie.style} >
                 {CONFIG.TITLE_ONE}
-              </s.TextTitle>
-              <s.TextTitle style={{ textAlign: "center" }} >
+              </h1>
+              <h3
+                className={styles.text_title}
+                style={{ textAlign: "center" }}
+              >
                 {CONFIG.TITLE_TWO}
-              </s.TextTitle>
-              <s.TextSubTitle style={{ textAlign: "center", color: "#00f5d0" }} >
+              </h3>
+              <h6
+                className={styles.text_subtitle}
+                style={{ textAlign: "center", color: "#00f5d0" }}
+              >
                 {CONFIG.MAX_PER_WALLET}
-              </s.TextSubTitle>
-              <s.TextTitle style={screebie.style} >
+              </h6>
+              <h3
+                className={styles.text_title}
+                style={screebie.style}
+              >
                 {data.totalMinted != 0
                   ? `${data.totalMinted} / ${CONFIG.MAX_SUPPLY}`
                   : `? / ${CONFIG.MAX_SUPPLY}`}
-              </s.TextTitle>
+              </h3>
               {Number(data.totalMinted) >= CONFIG.MAX_SUPPLY ? (
                 <>
-                  <s.TextTitle style={{ textAlign: "center" }} >
+                  <h3
+                    className={styles.text_title}
+                    style={{ textAlign: "center" }}
+                  >
                     The sale has ended.
-                  </s.TextTitle>
-                  <s.TextDescription style={{ textAlign: "center" }} >
+                  </h3>
+                  <p className={styles.text_description} style={{ textAlign: "center" }} >
                     You can still find {CONFIG.NFT_NAME} on
-                  </s.TextDescription>
-                  <s.SpacerSmall />
-                  <s.StyledLink target={"_blank"} href={CONFIG.MARKETPLACE_LINK}>
+                  </p>
+                  <div className={styles.SpacerSmall} />
+                  <a className={styles.styled_link} target={"_blank"} href={CONFIG.MARKETPLACE_LINK}>
                     {CONFIG.MARKETPLACE}
-                  </s.StyledLink>
+                  </a>
                 </>
               ) : (
                 <>
-                  <s.TextSubTitle style={{ textAlign: "center" }} >
+                  <h6 
+                    className={styles.text_subtitle}
+                    style={{ textAlign: "center" }}
+                  >
                     1 Mad Cow NFT costs {CONFIG.DISPLAY_COST} MATIC
-                  </s.TextSubTitle>
-                  <s.TextDescription style={{ textAlign: "center" }} >
+                  </h6>
+                  <p
+                    className={styles.text_description} style={{ textAlign: "center" }}
+                  >
                     (Excluding gas fees)
-                  </s.TextDescription>
-                  <s.SpacerSmall />
+                  </p>
+                  <div className={styles.SpacerSmall} />
                   {signer == null ? (
-                    <s.Container ai={"center"} jc={"center"}>
-                      <s.SpacerMedium/>
+                    <div className={styles.container} >
+                      <div className={styles.spacerMedium} />
                       <MintInput mintAmount={mintAmount} setMintAmount={setMintAmount}/>
-                      <s.SpacerSmall />
-                      <s.StyledButton style={screebie.style}
+                      <div className={styles.SpacerSmall} />
+                      <button className={styles.styled_button} style={screebie.style}
                         onClick={(e) => {
                           e.preventDefault();
                           connectWallet()
                         }}
                         >
                         CONNECT WALLET
-                      </s.StyledButton>
+                      </button >
                       {walletError.length < 1 ? (
                       <>
-                        <s.TextDescription style={{ textAlign: "center" }} >
+                        <p className={styles.text_description} style={{ textAlign: "center" }} >
                           Please connect your selected wallet
-                        </s.TextDescription>
+                        </p>
                       </>
                       ) :
-                      <s.TextDescription style={{
+                      <p className={styles.text_description} style={{
                         color: "pink",
                         fontWeight: "700"
                         }}
                       >
                         {walletError}
-                      </s.TextDescription>
+                      </p >
                       }
-                      <s.SpacerLarge/>
-                      <s.TextSubTitle>
+                      <div className={styles.spacerLarge} />
+                      <p className={styles.text_subtitle}>
                         OR
-                      </s.TextSubTitle>
-                      <s.SpacerLarge/>
+                      </p>
+                      <div className={styles.spacerLarge} />
                       <CrossmintPayButton
                         collectionId="0ccab6f8-d0be-409e-a280-fab3db7b22dd"
                         projectId="f45596a2-278e-4e6c-92c0-3f78be7d3e73"
@@ -383,7 +379,7 @@ export default function Home() {
                         environment="staging"
                           
                       />
-                      <s.TextTitle
+                      <h3 className={styles.text_title}
                         style={{
                           textAlign: "center",
                           fontSize: 20,
@@ -393,15 +389,18 @@ export default function Home() {
                         }}
                       >
                         {CONFIG.SOLD_OUT}
-                      </s.TextTitle>
-                    </s.Container>
+                      </h3>
+                    </div>
                   ) : (
                     <>
-                      <s.SpacerMedium />
+                      <div className={styles.spacerMedium} />
                       <MintInput mintAmount={mintAmount} setMintAmount={setMintAmount}/>
-                      <s.SpacerSmall />
-                      <s.Container ai={"center"} jc={"center"} fd={"row"}>
-                        <s.StyledButton
+                      <div className={styles.SpacerSmall} />
+                      <div
+                        className={styles.container}
+                        style={{ flexDirection: "row" }}
+                      >
+                        <button className={styles.styled_button}
                           style={screebie.style}
                           disabled={claimingNft ? 1 : 0}
                           onClick={(e) => {
@@ -410,35 +409,35 @@ export default function Home() {
                           }}
                         >
                           {claimingNft ? "MINTING..." : "MINT"}
-                        </s.StyledButton>
-                      </s.Container>
-                      <s.SpacerMedium />
-                      <s.TextDescription
+                        </button>
+                      </div >
+                      <div className={styles.spacerMedium} />
+                      <p className={styles.text_description}
                         style={{
                           textAlign: "center",
                           color: "white",
                         }}
                       >
                         {feedback}
-                      </s.TextDescription>
+                      </p >
                     </>
                   )}
                 </>
               )}
-              <s.SpacerMedium />
-            </s.Container>
-          </s.ResponsiveWrapper>
-          <s.bottomContainer jc={"center"} ai={"center"}>
-            <s.TextDescription style={{ textAlign: "center" }} >
+              <div className={styles.spacerMedium} />
+            </div>
+          </div>
+          <div className={styles.bottom_container}>
+            <p className={styles.text_description} style={{ textAlign: "center" }} >
               Please make sure you are connected to the right network (
               {CONFIG.NETWORK.NAME}). <br />
               Please note: Once you make the purchase, you cannot undo this
               action.
-            </s.TextDescription>
-          </s.bottomContainer>
-        </s.Container>
-        <s.SpacerLarge />
-      </s.Screen>
+            </p >
+          </div>
+        </div>
+        <div className={styles.spacerLarge} />
+      </div>
     </main>
   )
 }

@@ -1,0 +1,180 @@
+.screen {
+  background-image: url('https://belgoteximagelibrarythumbnails.s3.eu-west-2.amazonaws.com/test/shattered.png');
+  background-repeat: repeat;
+  background-color: #000;
+  background-size: repeat;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.spacerXSmall {
+  height: 8px;
+  width: 8px;
+}
+
+.spacerSmall {
+  height: 16px;
+  width: 16px;
+}
+
+.spacerMedium {
+  height: 24px;
+  width: 24px;
+}
+
+.spacerLarge {
+  height: 32px;
+  width: 32px;
+}
+
+.container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.bottomContainer {
+  display: flex;
+  width: 70%;
+}
+
+.text_title {
+  font-family: "screebie";
+  color: #fff;
+  transform: scale(1, 0.65);
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+  font-size: 7em;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.text_subtitle {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.text_description {
+  /* font-family: ; */
+  color: #fff;
+  font-size: 1.6rem;
+  line-height: 1.6;
+}
+
+/* INPUT STYLES */
+.styled_clickable:active {
+  opacity: 0.6;
+}
+
+.styled_button {
+  font-family: screebie;
+  font-size: 2.5em;
+  font-weight: 700;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border-radius: 10px;
+  border: none;
+  background-color: #00f5d0;
+  color: #fff;
+  width: 190px;
+  cursor: pointer;
+  transition: 0.3s;
+  transform: scale(1, 0.65);
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+
+.styled_button:hover {
+  opacity: 0.7;
+}
+
+.styled_round_button {
+  padding: 10px;
+  background-color: #f7f8fa;
+  font-weight: bold;
+  font-size: 15px;
+  color: white;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #010606;
+  border-bottom-left-radius: 15px 255px;
+  border-bottom-right-radius: 225px 15px;
+  border-top-left-radius: 255px 15px;
+  border-top-right-radius: 15px 225px;
+  box-shadow: rgba(245, 220, 255, 1) 4px 4px 1px 1px;
+  -webkit-box-shadow: rgba(245, 220, 255, 1) 4px 4px 1px 1px;
+  -moz-box-shadow: rgba(245, 220, 255, 1) 4px 4px 1px 1px;
+}
+
+.styled_round_button:active {
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+}
+
+.responsive_wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 24px 0;
+  justify-content: stretched;
+  align-items: stretched;
+  width: 100%;
+}
+
+.styled_logo {
+  width: 195px;
+  max-height: 100px;
+  transition: width 0.5s;
+  transition: height 0.5s;
+  cursor: pointer;
+}
+
+.styled_image {
+  box-shadow: 0px 5px 11px 2px rgba(0, 0, 0, 0.7);
+  background-color: #66bcd7;
+  height: auto;
+  margin: 0 auto;
+  max-width: 30rem;
+  border-radius: 50%;
+  box-shadow: 0 0 1rem 0.2rem white;
+}
+
+.styled_cont {
+  padding: 0 10rem 2rem 10rem;
+  display: flex;
+  justify-content: center;
+  grid-gap: 3rem;
+  flex-direction: row;
+  align-items: center;
+}
+
+.styled_link {
+  color: white;
+  text-decoration: none;
+}
+
+@media only screen and (max-width: 480px) {
+  .bottomContainer {
+    width: 100%;
+  }
+  .text_title {
+    font-size: 4.5em;
+  }
+  .text_description {
+    font-size: 1.4rem;
+  }
+}

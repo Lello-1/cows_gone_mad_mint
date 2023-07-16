@@ -1,4 +1,4 @@
-import "../app/styles/Header.css";
+import styles from "./header.module.css";
 import Image from "next/image";
 import ButtonExt from "./ButtonExt";
 import logo from '../../public/assets/cgm_logo.png';
@@ -9,40 +9,40 @@ import opensea from "../../public/social/opensea.svg";
 
 const Header = ({ openseaURL }) => {
   return (
-    <div className="header-wrapper">
-      <div className="inner-nav">
-        <div className="header-items">
-          <a className="header--logo" href="https://cowsgonemad.com/">
+    <div className={styles.header_wrapper}>
+      <div className={styles.inner_nav}>
+        <div className={styles.header_items}>
+          <a className="" href="https://cowsgonemad.com/">
             <Image
-              className="logo-image"
+              className={styles.logo_image}
               src={logo}
               alt="Cows Gone Mad Logo"
               priority={true}
             />
           </a>
-          <div className="header--nav">
-            <div className="header--nav-items">
+          <div className={styles.header_nav}>
+            <div className={styles.header_nav_items}>
               <ButtonExt
                 location="https://twitter.com/CowsGoneMad"
                 image={twitter}
                 alt={"Twitter"}
               />
             </div>
-            <div className="header--nav-items">
+            <div className={styles.header_nav_items}>
               <ButtonExt
                 location="https://discord.gg/BgygezJAYz"
                 image={discord}
                 alt={"Discord"}
               />
             </div>
-            <div className="header--nav-items">
+            <div className={styles.header_nav_items}>
               <ButtonExt
                 location="https://www.instagram.com/cowsgonemad/"
                 image={insta}
                 alt={"Instagram"}
               />
             </div>
-            <div className="header--nav-items">
+            <div className={styles.header_nav_items}>
               <ButtonExt
                 location={openseaURL}
                 image={opensea}
@@ -52,7 +52,7 @@ const Header = ({ openseaURL }) => {
           </div>
         </div>
       </div>
-      <div className="nav-accent"></div>
+      <div className={styles.nav_accent}></div>
     </div>
   );
 };
