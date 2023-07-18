@@ -166,5 +166,17 @@ div {
 }
 
 :root {
-  --onboard-white: aquamarine;
+  --onboard-modal-background: #323232;
+  --onboard-modal-color: white;
+  --onboard-font-size-1: 3rem;
+  --onboard-font-size-2: 2.25rem;
+  --onboard-font-size-3: 1.5rem;
+  --onboard-font-size-4: 4rem;
+  --onboard-font-size-5: 16px;
+  --onboard-font-size-6: 12px;
+  --onboard-font-size-7: 12px;
+
+  /* --onboard-wallet-button-color-hover: aquamarine; */
+  --onboard-wallet-button-background-hover: aquamarine;
+  --onboard-wallet-button-color-hover: black;
 }
