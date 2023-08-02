@@ -4,10 +4,11 @@ import "dotenv/config";
 import React, { useEffect, useState } from "react";
 import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
 import { ethers, BrowserProvider, Contract } from "ethers";
-import Onboard, { ThemingMap } from '@web3-onboard/core'
+import Onboard from '@web3-onboard/core'
 import injectedModule from '@web3-onboard/injected-wallets'
 import { CoinbaseWalletSDK } from "@coinbase/wallet-sdk";
 import { serializeError } from 'eth-rpc-errors'
+import { isMobile } from 'react-device-detect';
 import Header from "../components/Header";
 import MintInput from "../components/Mint_Input";
 import localFont from "next/font/local";
@@ -20,24 +21,32 @@ const screebie = localFont({
 });
 
 const MAINNET_RPC_URL = 'https://polygon-mumbai.g.alchemy.com/v2/cZi4QJUlHpBBa02zsxzly6SSU0e7uc8y';
-const injected = injectedModule();
 
-const onboard = Onboard({
-  wallets: [injected],
-  chains: [
-    {
-      id: '0x13881',
-      token: 'MATIC',
-      label: 'Polygon Testnet',
-      rpcUrl: MAINNET_RPC_URL
+let onboard;
+let ethereumClient;
+
+if (isMobile) {
+
+} else {
+  const injected = injectedModule();
+  
+  onboard = Onboard({
+    wallets: [injected],
+    chains: [
+      {
+        id: '0x13881',
+        token: 'MATIC',
+        label: 'Polygon Testnet',
+        rpcUrl: MAINNET_RPC_URL
+      }
+    ],
+    appMetadata: {
+      name: 'Cows Gone Mad',
+      icon: '<svg>App Icon</svg>',
+      description: 'Disrupting the medical industry.'
     }
-  ],
-  appMetadata: {
-    name: 'Cows Gone Mad',
-    icon: '<svg>App Icon</svg>',
-    description: 'Disrupting the medical industry.'
-  }
-});
+  });
+}
 
 export default function Home() {
   const [blockchain, setBlockchain] = useState({
@@ -60,9 +69,11 @@ export default function Home() {
     NETWORK: { NAME: "" }
   });
 
+  // RPC Connection to Polygon Node
   const RPC_connection = async (abi, config) => {
     const provider = new ethers.JsonRpcProvider(MAINNET_RPC_URL);
 
+    // Contract Object setup
     const contract = new Contract(
       config.CONTRACT_ADDRESS,
       abi,
@@ -73,6 +84,7 @@ export default function Home() {
     const cost = await contract.getPrice();
     const totalMinted = await contract.totalSupply();
 
+    // Save Contract, Cost and totalMinted to state
     blockchain.default_contract = contract;
     setData({
       cost,
@@ -84,76 +96,87 @@ export default function Home() {
   // CONNECT WALLET
   const connectWallet = async () => {
     try {
-      const wallets = await onboard.connectWallet();
-
-      if (wallets[0]) {
-        const provider = new BrowserProvider(wallets[0].provider, 'any');
-        const signer = await provider.getSigner();
+      // Check Device
+      if (isMobile) {
+        console.log('This is a mobile device!')
+      } else {
+        const wallets = await onboard.connectWallet();
   
-        // Request account
-        const accounts = await wallets[0].provider.request({
-          method: "eth_requestAccounts",
-        });
-        // Request Chain network
-        const networkId = await wallets[0].provider.request({
-          method: "net_version",
-        });
-
-        // Check networkId
-        if (networkId == CONFIG.NETWORK.ID) {
-  
-          const contract = new Contract(
-            CONFIG.CONTRACT_ADDRESS,
-            ABI,
-            signer
-          );
-          blockchain.contract = contract;
-          blockchain.account = accounts[0];
-  
-          // Set our NFT minted total
-          const totalMinted = await blockchain.contract.totalSupply();
-          data.totalMinted = Number(totalMinted);
-          
-          setProvider(provider);
-          setSigner(signer);
-
-          // // Add listeners
-          const wallets_state = onboard.state.select('wallets');
-          const { unsubscribe } = wallets_state.subscribe(async (wallets) => {
-            const { CHAINID } = CONFIG.NETWORK;
-            
-            if (wallets.length > 0) {
-              const { id } = wallets[0].chains[0];
-
-              if (id == CHAINID) {
-                const newProvider = new BrowserProvider(wallets[0].provider, 'any');
-                const newSigner = await newProvider.getSigner();
+        // Check if the first wallet in the array exists
+        if (wallets[0]) {
+          const provider = new BrowserProvider(wallets[0].provider, 'any');
+          const signer = await provider.getSigner();
     
-                blockchain.account = wallets[0].accounts[0].address;
-                blockchain.contract = new Contract(
-                  CONFIG.CONTRACT_ADDRESS,
-                  ABI,
-                  newSigner
-                )
-                setProvider(provider);
-                setSigner(newSigner);
-              } else {
-
-                const [primaryWallet] = onboard.state.get().wallets
-                await onboard.disconnectWallet({ label: primaryWallet.label })
-
-                setFeedback(`Please Connect ${wallets[0].label} to the ${CONFIG.NETWORK.NAME} Network`);
-              }
-            }
-
+          // Request account
+          const accounts = await wallets[0].provider.request({
+            method: "eth_requestAccounts",
           });
-
-        } else {
-          setWalletError(`Please Connect to the ${CONFIG.NETWORK.NAME} Network`);
+          // Request Chain network
+          const networkId = await wallets[0].provider.request({
+            method: "net_version",
+          });
+  
+          // Check networkId
+          if (networkId == CONFIG.NETWORK.ID) {
+    
+            // Setup Contract
+            const contract = new Contract(
+              CONFIG.CONTRACT_ADDRESS,
+              ABI,
+              signer
+            );
+            
+            // Save contract and account to state
+            blockchain.contract = contract;
+            blockchain.account = accounts[0];
+    
+            // Set our NFT minted total
+            const totalMinted = await blockchain.contract.totalSupply();
+            data.totalMinted = Number(totalMinted);
+            
+            // Save provider and signer to state
+            setProvider(provider);
+            setSigner(signer);
+  
+            // // Add listeners
+            const wallets_state = onboard.state.select('wallets');
+            const { unsubscribe } = wallets_state.subscribe(async (wallets) => {
+              const { CHAINID } = CONFIG.NETWORK;
+              
+              if (wallets.length > 0) {
+                const { id } = wallets[0].chains[0];
+  
+                if (id == CHAINID) {
+                  const newProvider = new BrowserProvider(wallets[0].provider, 'any');
+                  const newSigner = await newProvider.getSigner();
+      
+                  blockchain.account = wallets[0].accounts[0].address;
+                  blockchain.contract = new Contract(
+                    CONFIG.CONTRACT_ADDRESS,
+                    ABI,
+                    newSigner
+                  )
+                  setProvider(provider);
+                  setSigner(newSigner);
+                } else {
+  
+                  const [primaryWallet] = onboard.state.get().wallets
+                  await onboard.disconnectWallet({ label: primaryWallet.label })
+  
+                  setFeedback(`Please Connect ${wallets[0].label} to the ${CONFIG.NETWORK.NAME} Network`);
+                }
+              }
+  
+            });
+  
+          } else {
+            setWalletError(`Please Connect to the ${CONFIG.NETWORK.NAME} Network`);
+          }
+  
         }
-
       }
     } catch (error) {
+      // Run config error, serialize and log error
       setWalletError(CONFIG.WALLET_ERROR);
       console.log('Connect Wallet Error - ', serializeError(error));
     }
@@ -163,19 +186,21 @@ export default function Home() {
   const claimNFTs = async () => {
     const paused = await blockchain.contract.paused();
 
+    // Check if Contract is paused
     if (paused) {
       setFeedback("The sale is not open yet.");
     } else {
+      const default_admin_role = '0x0000000000000000000000000000000000000000000000000000000000000000';
       const isWhitelisted = await blockchain.contract
         .isWhitelisted(blockchain.account);
       const isFounder = await blockchain.contract
         .isFounder(blockchain.account);
       const owner = await blockchain.contract
-        .owner();
+        .hasRole(default_admin_role, blockchain.account);
 
       setClaimingNft(true);
 
-      if (isFounder || (owner.toLowerCase() == blockchain.account)) {
+      if (isFounder || owner) {
         setFeedback(`Minting your ${CONFIG.NFT_NAME}...`);
         mint(0);
       } else if (isWhitelisted) {
@@ -267,6 +292,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    // Site Setup
     getConfig();
   }, []);
 
