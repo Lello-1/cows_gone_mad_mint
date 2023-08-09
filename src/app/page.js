@@ -2,15 +2,14 @@
 
 import "dotenv/config";
 import React, { useEffect, useState } from "react";
-import { CrossmintPayButton } from "@crossmint/client-sdk-react-ui";
-import { ethers, BrowserProvider, Contract } from "ethers";
-import Onboard from '@web3-onboard/core'
-import injectedModule from '@web3-onboard/injected-wallets'
-import { CoinbaseWalletSDK } from "@coinbase/wallet-sdk";
-import { serializeError } from 'eth-rpc-errors'
-import { isMobile } from 'react-device-detect';
+import { ethers, Contract } from "ethers";
+import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum';
+import { Web3Modal } from '@web3modal/react';
+import { configureChains, createConfig, WagmiConfig } from 'wagmi';
+import { polygon, polygonMumbai } from 'wagmi/chains';
+
 import Header from "../components/Header";
-import MintInput from "../components/Mint_Input";
+import Mint_Section from "../components/Mint_Section";
 import localFont from "next/font/local";
 import styles from "./styles/Global.module.css";
 
@@ -20,50 +19,26 @@ const screebie = localFont({
   display: 'swap'
 });
 
-const MAINNET_RPC_URL = 'https://polygon-mumbai.g.alchemy.com/v2/cZi4QJUlHpBBa02zsxzly6SSU0e7uc8y';
+const RPC_URL = process.env.NEXT_PUBLIC_RPC_URL;
+const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
-let onboard;
-let ethereumClient;
+const chains = [polygon, polygonMumbai];
 
-if (isMobile) {
+// Wallet Connect and Wagmi setup
+const { publicClient } = configureChains(chains, [w3mProvider({ projectId })])
+const wagmiConfig = createConfig({
+  autoConnect: true,
+  connectors: w3mConnectors({ projectId, chains }),
+  publicClient
+});
+const ethereumClient = new EthereumClient(wagmiConfig, chains);
 
-} else {
-  const injected = injectedModule();
-  
-  onboard = Onboard({
-    wallets: [injected],
-    chains: [
-      {
-        id: '0x13881',
-        token: 'MATIC',
-        label: 'Polygon Testnet',
-        rpcUrl: MAINNET_RPC_URL
-      }
-    ],
-    appMetadata: {
-      name: 'Cows Gone Mad',
-      icon: '<svg>App Icon</svg>',
-      description: 'Disrupting the medical industry.'
-    }
-  });
-}
-
+// HOME/PAGE COMPONENT
 export default function Home() {
-  const [blockchain, setBlockchain] = useState({
-    account: "",
-    contract: null,
-    default_contract: null
-  });
   const [data, setData] = useState({
     totalMinted: 0,
     cost: 0
   });
-  const [walletError, setWalletError] = useState('');
-  const [claimingNft, setClaimingNft] = useState(false);
-  const [feedback, setFeedback] = useState(`Click MINT to mint your NFT.`);
-  const [mintAmount, setMintAmount] = useState(1);
-  const [provider, setProvider] = useState(null);
-  const [signer, setSigner] = useState(null);
   const[ABI, setABI] = useState({});
   const [CONFIG, SET_CONFIG] = useState({
     NETWORK: { NAME: "" }
@@ -71,7 +46,7 @@ export default function Home() {
 
   // RPC Connection to Polygon Node
   const RPC_connection = async (abi, config) => {
-    const provider = new ethers.JsonRpcProvider(MAINNET_RPC_URL);
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
 
     // Contract Object setup
     const contract = new Contract(
@@ -84,190 +59,15 @@ export default function Home() {
     const cost = await contract.getPrice();
     const totalMinted = await contract.totalSupply();
 
-    // Save Contract, Cost and totalMinted to state
-    blockchain.default_contract = contract;
+    // Save Cost and totalMinted to state
     setData({
-      cost,
-      totalMinted
+      cost: Number(cost),
+      totalMinted: Number(totalMinted)
     });
     
   }
-  
-  // CONNECT WALLET
-  const connectWallet = async () => {
-    try {
-      // Check Device
-      if (isMobile) {
-        console.log('This is a mobile device!')
-      } else {
-        const wallets = await onboard.connectWallet();
-  
-        // Check if the first wallet in the array exists
-        if (wallets[0]) {
-          const provider = new BrowserProvider(wallets[0].provider, 'any');
-          const signer = await provider.getSigner();
-    
-          // Request account
-          const accounts = await wallets[0].provider.request({
-            method: "eth_requestAccounts",
-          });
-          // Request Chain network
-          const networkId = await wallets[0].provider.request({
-            method: "net_version",
-          });
-  
-          // Check networkId
-          if (networkId == CONFIG.NETWORK.ID) {
-    
-            // Setup Contract
-            const contract = new Contract(
-              CONFIG.CONTRACT_ADDRESS,
-              ABI,
-              signer
-            );
-            
-            // Save contract and account to state
-            blockchain.contract = contract;
-            blockchain.account = accounts[0];
-    
-            // Set our NFT minted total
-            const totalMinted = await blockchain.contract.totalSupply();
-            data.totalMinted = Number(totalMinted);
-            
-            // Save provider and signer to state
-            setProvider(provider);
-            setSigner(signer);
-  
-            // // Add listeners
-            const wallets_state = onboard.state.select('wallets');
-            const { unsubscribe } = wallets_state.subscribe(async (wallets) => {
-              const { CHAINID } = CONFIG.NETWORK;
-              
-              if (wallets.length > 0) {
-                const { id } = wallets[0].chains[0];
-  
-                if (id == CHAINID) {
-                  const newProvider = new BrowserProvider(wallets[0].provider, 'any');
-                  const newSigner = await newProvider.getSigner();
-      
-                  blockchain.account = wallets[0].accounts[0].address;
-                  blockchain.contract = new Contract(
-                    CONFIG.CONTRACT_ADDRESS,
-                    ABI,
-                    newSigner
-                  )
-                  setProvider(provider);
-                  setSigner(newSigner);
-                } else {
-  
-                  const [primaryWallet] = onboard.state.get().wallets
-                  await onboard.disconnectWallet({ label: primaryWallet.label })
-  
-                  setFeedback(`Please Connect ${wallets[0].label} to the ${CONFIG.NETWORK.NAME} Network`);
-                }
-              }
-  
-            });
-  
-          } else {
-            setWalletError(`Please Connect to the ${CONFIG.NETWORK.NAME} Network`);
-          }
-  
-        }
-      }
-    } catch (error) {
-      // Run config error, serialize and log error
-      setWalletError(CONFIG.WALLET_ERROR);
-      console.log('Connect Wallet Error - ', serializeError(error));
-    }
-  }
 
-  // NFT MINT
-  const claimNFTs = async () => {
-    const paused = await blockchain.contract.paused();
-
-    // Check if Contract is paused
-    if (paused) {
-      setFeedback("The sale is not open yet.");
-    } else {
-      const default_admin_role = '0x0000000000000000000000000000000000000000000000000000000000000000';
-      const isWhitelisted = await blockchain.contract
-        .isWhitelisted(blockchain.account);
-      const isFounder = await blockchain.contract
-        .isFounder(blockchain.account);
-      const owner = await blockchain.contract
-        .hasRole(default_admin_role, blockchain.account);
-
-      setClaimingNft(true);
-
-      if (isFounder || owner) {
-        setFeedback(`Minting your ${CONFIG.NFT_NAME}...`);
-        mint(0);
-      } else if (isWhitelisted) {
-        let whitelist_price = await blockchain.contract
-          .getWhitelistPrice();
-        
-        whitelist_price = whitelist_price * BigInt(mintAmount);
-
-        setFeedback(`Minting your ${CONFIG.NFT_NAME}...`);
-        mint(whitelist_price);
-      } else {
-        let cost = await blockchain.contract.getPrice();
-        let totalCostWei = cost * BigInt(mintAmount);
-
-        setFeedback(`Minting your ${CONFIG.NFT_NAME}...`);
-        mint(totalCostWei);
-      }
-    }
-  };
-  
-  const mint = async (totalCostWei) => {
-    if ((data.totalMinted + mintAmount) <= CONFIG.MAX_SUPPLY) {
-      let totalGasLimit = CONFIG.GAS_LIMIT * mintAmount;
-
-      try {
-        const to = blockchain.account;
-        const settings = {
-          value: String(totalCostWei),
-          gasLimit: String(totalGasLimit)
-        }
-  
-        const tx = await blockchain.contract.mint(mintAmount, to, settings);
-
-        blockchain.contract.once(tx.hash, (receipt) => {
-          console.log('Transaction Mined: - ', receipt);
-        });
-  
-        const receipt = await tx.wait();
-  
-        console.log('Transaction Completed - ', receipt);
-
-        setFeedback(`You've adopted a Mad Cow! Thank you so much!`);
-        setClaimingNft(false);
-      } catch (error) {
-        const err = serializeError(error);
-        const errorCode = err.data.originalError.code;
-
-        if (errorCode == 'INSUFFICIENT_FUNDS') {
-          setFeedback(`Please check you have sufficient funds to purchase your NFTs.`);
-        } else if (errorCode == 'ACTION_REJECTED') {
-          setFeedback(
-            `Wallet confirmation rejected.`
-          );
-        } else {
-          setFeedback(
-            `Sorry, something went wrong, please contact a moderator of Cows Gone Mad on discord and give them this code: "${err.data.originalError.code}".`
-          );
-          console.log(err);
-        }
-        setClaimingNft(false);
-      }
-      
-    } else {
-      setFeedback('Not enough NFTs available, Please adjust the amount you would like to mint.');
-    }
-  }
-
+  // Get the Site Configuration
   const getConfig = async (cb) => {
     const configResponse = await fetch("/config/config.json", {
       headers: {
@@ -299,171 +99,68 @@ export default function Home() {
 
   return (
     <main>
-      <div className={styles.screen} >
-        <Header openseaURL={{
-          openseaURL: CONFIG.OPENSEA
-        }}/>
-        <div className={styles.container} >
-          <div className={styles.responsive_wrapper}>
-            <div className={styles.spacerLarge} />
-            <div className={styles.container} >
-              <h1 className={styles.text_title} style={screebie.style} >
-                {CONFIG.TITLE_ONE}
-              </h1>
-              <h3
-                className={styles.text_title}
-                style={{ textAlign: "center" }}
-              >
-                {CONFIG.TITLE_TWO}
-              </h3>
-              <h6
-                className={styles.text_subtitle}
-                style={{ textAlign: "center", color: "#00f5d0" }}
-              >
-                {CONFIG.MAX_PER_WALLET}
-              </h6>
-              <h3
-                className={styles.text_title}
-                style={screebie.style}
-              >
-                {data.totalMinted != 0
-                  ? `${data.totalMinted} / ${CONFIG.MAX_SUPPLY}`
-                  : `? / ${CONFIG.MAX_SUPPLY}`}
-              </h3>
-              {Number(data.totalMinted) >= CONFIG.MAX_SUPPLY ? (
-                <>
-                  <h3
-                    className={styles.text_title}
-                    style={{ textAlign: "center" }}
-                  >
-                    The sale has ended.
-                  </h3>
-                  <p className={styles.text_description} style={{ textAlign: "center" }} >
-                    You can still find {CONFIG.NFT_NAME} on
-                  </p>
-                  <div className={styles.SpacerSmall} />
-                  <a className={styles.styled_link} target={"_blank"} href={CONFIG.MARKETPLACE_LINK}>
-                    {CONFIG.MARKETPLACE}
-                  </a>
-                </>
-              ) : (
-                <>
-                  <h6 
-                    className={styles.text_subtitle}
-                    style={{ textAlign: "center" }}
-                  >
-                    1 Mad Cow NFT costs {CONFIG.DISPLAY_COST} MATIC
-                  </h6>
-                  <p
-                    className={styles.text_description} style={{ textAlign: "center" }}
-                  >
-                    (Excluding gas fees)
-                  </p>
-                  <div className={styles.SpacerSmall} />
-                  {signer == null ? (
-                    <div className={styles.container} >
-                      <div className={styles.spacerMedium} />
-                      <MintInput mintAmount={mintAmount} setMintAmount={setMintAmount}/>
-                      <div className={styles.SpacerSmall} />
-                      <button className={styles.styled_button} style={screebie.style}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          connectWallet()
-                        }}
-                        >
-                        CONNECT WALLET
-                      </button >
-                      {walletError.length < 1 ? (
-                      <>
-                        <p className={styles.text_description} style={{ textAlign: "center" }} >
-                          Please connect your selected wallet
-                        </p>
-                      </>
-                      ) :
-                      <p className={styles.text_description} style={{
-                        color: "pink",
-                        fontWeight: "700"
-                        }}
-                      >
-                        {walletError}
-                      </p >
-                      }
-                      <div className={styles.spacerLarge} />
-                      <p className={styles.text_subtitle}>
-                        OR
-                      </p>
-                      <div className={styles.spacerLarge} />
-                      <CrossmintPayButton
-                        collectionId="0ccab6f8-d0be-409e-a280-fab3db7b22dd"
-                        projectId="f45596a2-278e-4e6c-92c0-3f78be7d3e73"
-                        mintConfig={{
-                          "type":"erc-721",
-                          "totalPrice":ethers.formatEther(BigInt(Number(data.cost) * mintAmount)),
-                          "_mintAmount":mintAmount,
-                          "quantity":mintAmount
-                        }}
-                        environment="staging"
-                          
-                      />
-                      <h3 className={styles.text_title}
-                        style={{
-                          textAlign: "center",
-                          fontSize: 20,
-                          fontWeight: "bold",
-                          color: "white",
-                          paddingTop: 25,
-                        }}
-                      >
-                        {CONFIG.SOLD_OUT}
-                      </h3>
-                    </div>
-                  ) : (
-                    <>
-                      <div className={styles.spacerMedium} />
-                      <MintInput mintAmount={mintAmount} setMintAmount={setMintAmount}/>
-                      <div className={styles.SpacerSmall} />
-                      <div
-                        className={styles.container}
-                        style={{ flexDirection: "row" }}
-                      >
-                        <button className={styles.styled_button}
-                          style={screebie.style}
-                          disabled={claimingNft ? 1 : 0}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            claimNFTs();
-                          }}
-                        >
-                          {claimingNft ? "MINTING..." : "MINT"}
-                        </button>
-                      </div >
-                      <div className={styles.spacerMedium} />
-                      <p className={styles.text_description}
-                        style={{
-                          textAlign: "center",
-                          color: "white",
-                        }}
-                      >
-                        {feedback}
-                      </p >
-                    </>
-                  )}
-                </>
-              )}
-              <div className={styles.spacerMedium} />
+      <WagmiConfig config={wagmiConfig}>
+        <div className={styles.screen} >
+          <Header socials={{
+            websiteURL: CONFIG.WEBSITE,
+            openseaURL: CONFIG.OPENSEA,
+            twitterURL: CONFIG.TWITTER,
+            discordURL: CONFIG.DISCORD,
+            instagramURL: CONFIG.INSTAGRAM,
+            roadmapURL: CONFIG.ROADMAP
+          }}/>
+          <div className={styles.container} >
+            <div className={styles.responsive_wrapper}>
+              <div className={styles.spacerLarge} />
+              <div className={styles.container} >
+                <h1 className={styles.text_title} style={screebie.style} >
+                  {CONFIG.TITLE_ONE}
+                </h1>
+                <h6
+                  className={styles.text_subtitle}
+                  style={{ textAlign: "center", color: "#00f5d0" }}
+                >
+                  {CONFIG.MAX_PER_WALLET}
+                </h6>
+                <h3
+                  className={styles.text_title}
+                  style={screebie.style}
+                >
+                  {data.totalMinted != 0
+                    ? `${data.totalMinted} / ${CONFIG.MAX_SUPPLY}`
+                    : `? / ${CONFIG.MAX_SUPPLY}`}
+                </h3>
+                <Mint_Section
+                  CONFIG={CONFIG}
+                  appData={data}
+                  ABI={ABI}
+                />
+                <div className={styles.spacerMedium} />
+              </div>
+            </div>
+            <div className={styles.bottom_container}>
+              <p className={styles.text_description} style={{ textAlign: "center" }} >
+                Please make sure you are connected to the right network (
+                {CONFIG.NETWORK.NAME}). <br />
+                Please note: Once you make the purchase, you cannot undo this
+                action.
+              </p>
             </div>
           </div>
-          <div className={styles.bottom_container}>
-            <p className={styles.text_description} style={{ textAlign: "center" }} >
-              Please make sure you are connected to the right network (
-              {CONFIG.NETWORK.NAME}). <br />
-              Please note: Once you make the purchase, you cannot undo this
-              action.
-            </p >
-          </div>
+          <div className={styles.spacerLarge} />
         </div>
-        <div className={styles.spacerLarge} />
-      </div>
+      </WagmiConfig>
+      <Web3Modal
+        projectId={projectId}
+        ethereumClient={ethereumClient}
+        themeVariables={{
+          '--w3m-text-big-bold-font-family': '#00f5d0'
+        }}
+        explorerRecommendedWalletIds={[
+          'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96',
+          'fd20dc426fb37566d803205b19bbc1d4096b248ac04548e3cfb6b3a38bd033aa'
+        ]}
+      />
     </main>
   )
 }

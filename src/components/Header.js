@@ -7,12 +7,12 @@ import insta from "../../public/social/insta.svg";
 import discord from "../../public/social/discord.svg";
 import opensea from "../../public/social/opensea.svg";
 
-const Header = ({ openseaURL }) => {
+const Header = ({ socials }) => {
   return (
     <div className={styles.header_wrapper}>
       <div className={styles.inner_nav}>
         <div className={styles.header_items}>
-          <a className="" href="https://cowsgonemad.com/">
+          <a className="" href={socials.websiteURL}>
             <Image
               className={styles.logo_image}
               src={logo}
@@ -23,28 +23,28 @@ const Header = ({ openseaURL }) => {
           <div className={styles.header_nav}>
             <div className={styles.header_nav_items}>
               <ButtonExt
-                location="https://twitter.com/CowsGoneMad"
+                location={socials.twitterURL}
                 image={twitter}
                 alt={"Twitter"}
               />
             </div>
             <div className={styles.header_nav_items}>
               <ButtonExt
-                location="https://discord.gg/BgygezJAYz"
+                location={socials.discordURL}
                 image={discord}
                 alt={"Discord"}
               />
             </div>
             <div className={styles.header_nav_items}>
               <ButtonExt
-                location="https://www.instagram.com/cowsgonemad/"
+                location={socials.instagramURL}
                 image={insta}
                 alt={"Instagram"}
               />
             </div>
             <div className={styles.header_nav_items}>
               <ButtonExt
-                location={openseaURL}
+                location={socials.openseaURL}
                 image={opensea}
                 alt={"Opensea"}
               />
