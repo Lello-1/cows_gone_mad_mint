@@ -97,9 +97,9 @@ export default function Mint_Section({ appData, CONFIG, ABI }) {
     if (isFounder || isOwner) {
       price = '0';
     } else if (isWhitelisted) {
-      price = (contractData[4].result * BigInt(mintAmount)).toString();
+      price = contractData[4].result * BigInt(mintAmount);
     } else {
-      price = (contractData[5].result * BigInt(mintAmount)).toString();
+      price = contractData[5].result * BigInt(mintAmount);
     }
   }
 
