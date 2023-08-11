@@ -117,7 +117,7 @@ export default function Mint_Section({ appData, CONFIG, ABI }) {
 
   // Check the transaction process
   const { isLoading: transactionLoading, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
+    hash: data?.hash
   })
 
   // Serialize RPC Error and print
